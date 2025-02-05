@@ -1,0 +1,152 @@
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.Navbar_controll {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid red;
+    background-color: white;
+}
+
+.Header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.controll_body {
+    position: relative;
+}
+
+.logo_admin {
+    width: 60px;
+    height: 60px;
+    margin-left: 90px;
+}
+
+.logo_admin img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.controll_profile {
+    margin-right: 20px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status {
+    width: 60px;
+    height: 60px;
+
+}
+
+.status img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+
+}
+
+.Name {
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.Name h1 {
+    color: black;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+
+}
+
+.Name p {
+    margin: 0;
+    padding: 0;
+    color: gray;
+}
+
+.controll_body {
+    display: flex;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    gap: 2px;
+}
+
+.sidebar {
+    width: 15vw;
+    height: 95vh;
+    margin: 0;
+    padding: 0;
+    border: 1px solid red;
+    position: relative;
+}
+
+.sidebar p {
+    margin: 0;
+    background-color: rebeccapurple;
+}
+
+.body_item {
+    width: 85vw;
+    height: 100%;
+}
+
+.sidebar span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logout {
+    width: 100%;
+    position: absolute;
+    bottom: 20px;
+}
+
+.sidebar {
+    position: sticky;
+}
+
+.control_input {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.alert_message {
+    padding: 16px;
+    margin: 16px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    /* Limits the width on larger screens */
+    width: 100%;
+    /* Allows full width on smaller screens */
+}
+.body_item{
+    position: relative;
+}
+/* .Snackbar{
+    width: 120px;
+    position: absolute;
+  
+   
+} */

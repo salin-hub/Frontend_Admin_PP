@@ -1,0 +1,24 @@
+/* Horizontal scrollbar styling */
+.MuiTableContainer-root {
+    scrollbar-color: #888 #f1f1f1; /* Thumb and track colors */
+    scrollbar-width: thin; /* For Firefox */
+}
+
+.MuiTableContainer-root::-webkit-scrollbar {
+    height: 8px; /* Horizontal scrollbar height */
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-thumb {
+    background: #888; /* Thumb color */
+    border-radius: 4px;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Thumb color on hover */
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Track color */
+}
+
+
