@@ -41,7 +41,7 @@ const SideBar = () => {
   const menuItems = [
     { path: '/', label: 'Dashboard', icon: <SpeedIcon /> },
     { path: '/book', label: 'Books', icon: <MenuBookRoundedIcon /> },
-    { path: '/categories', label: 'Category List', icon: <CategoryIcon /> },
+    { path: '/categorylist', label: 'Category List', icon: <CategoryIcon /> },
     { path: '/authors', label: 'Author', icon: <PeopleAltIcon /> },
     { path: '/create', label: 'Create', icon: <AddCircleOutlineIcon /> },
     { path: '/orderlist', label: 'Order List', icon: <ChecklistIcon /> },

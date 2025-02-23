@@ -1,22 +1,16 @@
 import { Link } from 'react-router-dom';
-import AutoStoriesIcon from '@mui/icons-material/AutoStories';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import  FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 const Create = () => {
   const items = [
-    { path: '/createBook', label: 'Books', icon: <AutoStoriesIcon /> },
-    { path: '/CreateAuthor', label: 'Authors', icon: <PeopleAltIcon /> },
-    { path: '/CreateCategory', label: 'Categories', icon: <FeaturedPlayListIcon /> },
+    { path: '/Categories', label: 'Categories', icon: <FeaturedPlayListIcon /> },
     { path: '/subcategory', label: 'Sub Categories', icon: <AccountTreeIcon /> },
-    { path: '/Banner', label: 'Banner', icon: <ViewCarouselIcon /> },
   ];
 
   return (
     <div className="control_create">
       <div className="nameCreate" >
-        <h1>Create</h1>
+        <h1>List All Category</h1>
       </div>
       <div className="item_create">
         {items.map((item, index) => (

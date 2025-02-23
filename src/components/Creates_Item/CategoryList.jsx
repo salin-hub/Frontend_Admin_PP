@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
 import axios from '../../API/axios'; // Adjust the path to where your axios instance is defined
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Table,
   TableBody,
@@ -26,95 +31,76 @@ const CategoryList = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [editMode, setEditMode] = useState(false);
-  const [currentCategory, setCurrentCategory] = useState({ id: '', name: '', description: '' });
-  // Fetch categories from API
+  const [expanded, setExpanded] = useState(null); // Track which category is expanded
+  const [currentCategory, setCurrentCategory] = useState({ id: '', name: '', description: '', subcategory_id: '' });
+
+  // Handle expansion of category
+  const handleExpansion = (categoryId) => {
+    setExpanded((prevExpanded) => (prevExpanded === categoryId ? null : categoryId)); // Toggle expansion
+  };
+
+  // Fetch categories and subcategories from API
   const fetchCategories = async () => {
     try {
-      setLoading(true)
-      const response = await axios.get('/getcategories');
-      setCategories(response.data); // Set categories from response
+      setLoading(true);
+      const response = await axios.get('/categories');
+      setCategories(response.data.categories);
     } catch (error) {
-      // Check for error response to provide more specific feedback
-      if (error.response) {
-        setError(`Failed to loading categories: ${error.response.data.message || error.message}`);
-      } else {
-        setError('Failed to loading categories: An unexpected error occurred');
-      }
+      setError('Failed to load categories: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
     }
   };
-
-  // Delete category from API
   const deleteCategory = async (id) => {
     try {
       await axios.delete(`/categories/${id}`);
-      setCategories(categories.filter((category) => category.id !== id)); // Remove the deleted category from state
+      setCategories(categories.filter((category) => category.id !== id));
     } catch (error) {
-      // Check for error response to provide more specific feedback
-      if (error.response) {
-        setError(`Failed to delete categories: ${error.response.data.message || error.message}`);
-      } else {
-        setError('Failed to Delete categories: An unexpected error occurred');
-      }
+      setError('Failed to delete category: ' + (error.response?.data?.message || error.message));
     }
   };
-
-  // Edit category - Open dialog for editing
   const handleEditClick = (category) => {
-    setCurrentCategory({ id: category.id, name: category.name, description: category.description });
+    setCurrentCategory({
+      id: category.id,
+      name: category.name,
+      description: category.description,
+      subcategory_id: category.subcategory_id || '', 
+    });
     setEditMode(true);
   };
-
-  // Update category
   const updateCategory = async () => {
     try {
       await axios.put(`/categories/${currentCategory.id}`, currentCategory);
-
-      // Update the categories state
       setCategories(categories.map((category) =>
         category.id === currentCategory.id ? currentCategory : category
       ));
-
-      setEditMode(false); // Close dialog after update
+      setEditMode(false); 
     } catch (error) {
-      if (error.response) {
-        setError(`Failed to update category: ${error.response.data.message || error.message}`);
-      } else {
-        setError('Failed to update category: An unexpected error occurred');
-      }
+      setError('Failed to update category: ' + (error.response?.data?.message || error.message));
     }
   };
-
-  // Handle search term change
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-  };
-
-  // Filter categories based on search term
+  const handleSearchChange = (e) => setSearchTerm(e.target.value);
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // Close the edit dialog without saving
   const handleCloseDialog = () => {
     setEditMode(false);
-    setCurrentCategory({ id: '', name: '', description: '' });
+    setCurrentCategory({ id: '', name: '', description: '', subcategory_id: '' });
   };
 
   useEffect(() => {
-    fetchCategories(); // Fetch categories on mount
+    fetchCategories();
   }, []);
 
-  // if (loading) return <p>Loading categories...</p>;
+  if (loading) return <LinearProgress sx={{ marginBottom: '20px' }} />;
   if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
   return (
     <>
-      <div className="nameCreate" >
+      <div className="nameCreate">
         <h1>Category List</h1>
       </div>
-      {loading && <LinearProgress sx={{ marginBottom: '20px' }} />}
+
       <div style={{ padding: '20px' }}>
         <TextField
           variant="outlined"
@@ -124,28 +110,55 @@ const CategoryList = () => {
           onChange={handleSearchChange}
           style={{ marginBottom: '20px' }}
         />
+
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
-              <TableRow >
-                <TableCell align='center'>No</TableCell>
-                <TableCell align='center'>Category Name</TableCell>
-                <TableCell align='center'>Category Description</TableCell>
-                <TableCell align='center'>Actions</TableCell>
+              <TableRow>
+                <TableCell align="center">No</TableCell>
+                <TableCell align="center">Category Name</TableCell>
+                <TableCell align="center">Category Description</TableCell>
+                <TableCell align="center">Subcategories</TableCell>
+                <TableCell align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredCategories.map((category, index) => (
-                <TableRow key={category.id}>
-                  <TableCell align='center'>{index + 1}</TableCell>
-                  <TableCell align='center'>{category.name}</TableCell>
-                  <TableCell align='center' sx={{
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    maxWidth: "300px",
-                    cursor: "pointer",
-                  }}>{category.description}</TableCell>
-                  <TableCell align='center'>
+                <TableRow key={category.id} >
+                  <TableCell align="center" >{index + 1}</TableCell>
+                  <TableCell align="center">
+                    <Typography>
+                      {category.name}
+                    </Typography>
+                  </TableCell>
+                  <TableCell align="center">{category.description}</TableCell>
+                  <TableCell align="center">
+                    <Accordion expanded={expanded === category.id} onChange={() => handleExpansion(category.id)}>
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls={`panel-${category.id}-content`}
+                        id={`panel-${category.id}-header`}
+                      >
+                        <Typography component="span">View Subcategories</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ display: 'flex', flexDirection: 'column' }}>
+                        {category.subcategories && category.subcategories.length > 0 ? (
+                          <ul style={{ padding: 0,  }}>
+                            {category.subcategories.map((sub) => (
+                              <li key={sub.id} style={{display:"flex",alignItems:"center", justifyContent:"start", fontFamily:"Roboto, Nokora, sans-serif", fontSize:"15px",}} >
+                                {sub.name}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <Typography variant="body2" color="textSecondary">No Subcategories</Typography>
+                        )}
+                      </AccordionDetails>
+
+
+                    </Accordion>
+                  </TableCell>
+                  <TableCell align="center">
                     <IconButton aria-label="edit" onClick={() => handleEditClick(category)}>
                       <EditIcon />
                     </IconButton>

@@ -15,6 +15,8 @@ import UserTable from './components/Accounts/UserController';
 import Settings from './components/Setting/Setting';
 import Authors from './components/Creates_Item/Authors';
 import Categories from './components/Creates_Item/CategoryList';
+import SubCategoryForm from './components/Creates_Item/CreateSubCategory';
+import CategoryList from './components/Creates_Item/Category_Item';
 import { BrowserRouter as Router, Routes, Route, Outlet, useNavigate } from 'react-router-dom';
 
 function App() {
@@ -58,6 +60,8 @@ function AppWithRouter() {
           <Route path="/orderlist" element={<OrderList />} />
           <Route path="/usertable" element={<UserTable />} />
           <Route path="/setting" element={<Settings />} />
+          <Route path="/subcategory" element={<SubCategoryForm />} />
+          <Route path="/categorylist" element={<CategoryList />} />
         </Route>
       )}
 

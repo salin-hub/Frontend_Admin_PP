@@ -11,7 +11,7 @@ import {
   FormHelperText,
   Typography,
 } from "@mui/material";
-import axios from "../../API/axios"; 
+import axios from "../../API/axios";
 const BookForm = () => {
   const [formData, setFormData] = useState({
     title: "",
@@ -24,7 +24,7 @@ const BookForm = () => {
     dimensions: "",
     language: "",
     ean: "",
-    type: "handbook", // Hardcoded type for now
+    type: "handbook",
     cover_file: null,
     price_handbook: "",
   });
@@ -34,13 +34,38 @@ const BookForm = () => {
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [filePreview, setFilePreview] = useState(null);
-  
+  const [subcategories, setSubcategories] = useState([]);
+
+  const handleChange = async (e) => {
+    const { name, value } = e.target;
+
+    // // Make sure 'author_ids' is always an array
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    // Fetch subcategories if the category changes
+    if (name === "category_id") {
+      try {
+        const subcategoryResponse = await axios.get(`/${value}/subcategories`);
+        setSubcategories(subcategoryResponse.data.subcategories || []);
+      } catch (error) {
+        console.error("Error fetching subcategories:", error);
+        setSubcategories([]);
+      }
+    }
+  };
+
+
+
+
   useEffect(() => {
     const fetchCategoriesAndAuthors = async () => {
       try {
-        const categoryResponse = await axios.get("getcategories"); 
+        const categoryResponse = await axios.get("categories");
         const authorResponse = await axios.get("getauthors");
-        setCategories(categoryResponse.data);
+        setCategories(categoryResponse.data.categories || []);
         setAuthors(authorResponse.data.authors);
       } catch (err) {
         console.error("Error fetching categories and authors", err);
@@ -50,25 +75,25 @@ const BookForm = () => {
     fetchCategoriesAndAuthors();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormData((prevState) => ({
+  //     ...prevState,
+  //     [name]: value,
+  //   }));
+  // };
 
   const handleFileChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
       cover_file: e.target.files[0],
-      if (file) {
-        setFilePreview(URL.createObjectURL(file)); 
+      if(file) {
+        setFilePreview(URL.createObjectURL(file));
       }
     }));
-    
+
   };
- 
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -123,239 +148,285 @@ const BookForm = () => {
       }
     }
   };
+
   return (
     <><div className="nameCreate">
-    <h1>Create Book</h1>
-  </div>
-    <Box sx={{ mx: "auto", my: 4, padding: 2, border: "1px solid #ddd", borderRadius: "8px" }}>
-  
+      <h1>Create Book</h1>
+    </div>
+      <Box sx={{ mx: "auto", my: 4, padding: 2, border: "1px solid #ddd", borderRadius: "8px" }}>
 
-      {successMessage && <Typography color="green" gutterBottom>{successMessage}</Typography>}
 
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
-          {/* Title Field */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              error={!!errors.title}
-              helperText={errors.title && errors.title.join(", ")}
-            />
-          </Grid>
+        {successMessage && <Typography color="green" gutterBottom>{successMessage}</Typography>}
 
-          {/* Description Field */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              error={!!errors.description}
-              helperText={errors.description && errors.description.join(", ")}
-            />
-          </Grid>
-
-          {/* Author Selection */}
-          <Grid item xs={12}>
-            <FormControl fullWidth error={!!errors.author_id}>
-              <InputLabel>Author</InputLabel>
-              <Select
-                label="Author"
-                name="author_id"
-                value={formData.author_id}
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={2}>
+            {/* Title Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Title"
+                name="title"
+                value={formData.title}
                 onChange={handleChange}
-              >
-                {authors.map((author) => (
-                  <MenuItem key={author.id} value={author.id}>
-                    {author.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors.author_id && <FormHelperText>{errors.author_id.join(", ")}</FormHelperText>}
-            </FormControl>
-          </Grid>
+                error={!!errors.title}
+                helperText={errors.title && errors.title.join(", ")}
+              />
+            </Grid>
 
-          {/* Category Selection */}
-          <Grid item xs={12}>
-            <FormControl fullWidth error={!!errors.category_id}>
-              <InputLabel>Category</InputLabel>
-              <Select
-                label="Category"
-                name="category_id"
-                value={formData.category_id}
+            {/* Description Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Description"
+                name="description"
+                value={formData.description}
                 onChange={handleChange}
-              >
-                {categories.map((category) => (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors.category_id && <FormHelperText>{errors.category_id.join(", ")}</FormHelperText>}
-            </FormControl>
-          </Grid>
+                error={!!errors.description}
+                helperText={errors.description && errors.description.join(", ")}
+              />
+            </Grid>
 
-          {/* Publisher Field */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Publisher"
-              name="publisher"
-              value={formData.publisher}
-              onChange={handleChange}
-              error={!!errors.publisher}
-              helperText={errors.publisher && errors.publisher.join(", ")}
-            />
-          </Grid>
-
-          {/* Publish Date Field */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Publish Date"
-              name="publish_date"
-              type="date"
-              value={formData.publish_date}
-              onChange={handleChange}
-              error={!!errors.publish_date}
-              helperText={errors.publish_date && errors.publish_date.join(", ")}
-              InputLabelProps={{
-                shrink: true, // This ensures the label stays above the field when a date is selected
-              }}
-             
-            />
-          </Grid>
-
-
-          {/* Pages Field */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Pages"
-              name="pages"
-              type="number"
-              value={formData.pages}
-              onChange={handleChange}
-              error={!!errors.pages}
-              helperText={errors.pages && errors.pages.join(", ")}
-            />
-          </Grid>
-
-          {/* Dimensions Field */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Dimensions"
-              name="dimensions"
-              value={formData.dimensions}
-              onChange={handleChange}
-              error={!!errors.dimensions}
-              helperText={errors.dimensions && errors.dimensions.join(", ")}
-            />
-          </Grid>
-
-          {/* Language Field */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Language"
-              name="language"
-              value={formData.language}
-              onChange={handleChange}
-              error={!!errors.language}
-              helperText={errors.language && errors.language.join(", ")}
-            />
-          </Grid>
-
-          {/* EAN Field */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="EAN"
-              name="ean"
-              value={formData.ean}
-              onChange={handleChange}
-              error={!!errors.ean}
-              helperText={errors.ean && errors.ean.join(", ")}
-            />
-          </Grid>
-
-          {/* Price Field */}
-          <Grid item xs={12}>
-            <TextField
-              fullWidth
-              label="Price"
-              name="price_handbook"
-              type="number"
-              value={formData.price_handbook}
-              onChange={handleChange}
-              error={!!errors.price_handbook}
-              helperText={errors.price_handbook && errors.price_handbook.join(", ")}
-            />
-          </Grid>
+            {/* Author Selection */}
+            <Grid item xs={12}>
+              <FormControl fullWidth error={!!errors.author_id}>
+                <InputLabel>Author</InputLabel>
+                <Select
+                  label="Author"
+                  name="author_id"
+                  value={formData.author_id}
+                  onChange={handleChange}
+                >
+                  {authors.map((author) => (
+                    <MenuItem key={author.id} value={author.id}>
+                      {author.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.author_id && <FormHelperText>{errors.author_id.join(", ")}</FormHelperText>}
+              </FormControl>
+            </Grid>
+            {/* <Grid item xs={12}>
+              <FormControl fullWidth error={!!errors.author_ids}>
+                <InputLabel>Author</InputLabel>
+                <Select
+                  multiple
+                  name="author_ids"
+                  value={formData.author_ids || []}
+                  onChange={handleChange}
+                  renderValue={(selected) =>
+                    authors
+                      .filter((author) => selected.includes(author.id))
+                      .map((author) => author.name)
+                      .join(", ")
+                  }
+                >
+                  {authors.map((author) => (
+                    <MenuItem key={author.id} value={author.id}>
+                      {author.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <FormHelperText>{errors.author_ids?.join(", ")}</FormHelperText>
+              </FormControl>
 
 
-          {/* Cover Image Field */}
-          <Grid item xs={12}>
-            <input
-              type="file"
-              name="cover_path"
-              onChange={handleFileChange}
-              accept="image/*"
-              required
-              style={{
-                padding: '10px',
-                fontSize: '16px',
-                borderRadius: '5px',
-                border: '1px solid #ccc',
-                backgroundColor: '#f9f9f9',
-                display: 'block',
-                marginBottom: '10px',
-              }}
-            />
 
-            {/* Display error message */}
-            {errors.cover_path && (
-              <Typography color="red" sx={{ marginTop: '5px', fontSize: '14px' }}>
-                {errors.cover_path}
-              </Typography>
-            )}
+            </Grid> */}
 
-            {/* Display selected image preview */}
-            {filePreview && (
-              <div style={{ marginTop: '15px' }}>
-                <img
-                  src={filePreview}
-                  alt="Cover Preview"
-                  style={{
-                    width: '150px',
-                    height: 'auto',
-                    borderRadius: '5px',
-                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                  }}
-                />
-                <Typography sx={{ marginTop: '5px', fontSize: '14px', textAlign: 'center' }}>
-                  Image Preview
+            {/* Category Selection */}
+            <Grid item xs={12}>
+              <FormControl fullWidth error={!!errors.category_id}>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  label="Category"
+                  name="category_id"
+                  value={formData.category_id}
+                  onChange={handleChange}
+                >
+                  {categories.map((category) => (
+                    <MenuItem key={category.id} value={category.id}>
+                      {category.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.category_id && <FormHelperText>{errors.category_id.join(", ")}</FormHelperText>}
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl fullWidth error={!!errors.subcategory_id} disabled={!subcategories.length}>
+                <InputLabel>SubCategory</InputLabel>
+                <Select
+                  label="SubCategory"
+                  name="subcategory_id"
+                  value={formData.subcategory_id || ""}
+                  onChange={handleChange}
+                >
+                  {subcategories.map((subcategory) => (
+                    <MenuItem key={subcategory.id} value={subcategory.id}>
+                      {subcategory.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.subcategory_id && <FormHelperText>{errors.subcategory_id.join(", ")}</FormHelperText>}
+              </FormControl>
+            </Grid>
+
+            {/* Publisher Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Publisher"
+                name="publisher"
+                value={formData.publisher}
+                onChange={handleChange}
+                error={!!errors.publisher}
+                helperText={errors.publisher && errors.publisher.join(", ")}
+              />
+            </Grid>
+
+            {/* Publish Date Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Publish Date"
+                name="publish_date"
+                type="date"
+                value={formData.publish_date}
+                onChange={handleChange}
+                error={!!errors.publish_date}
+                helperText={errors.publish_date && errors.publish_date.join(", ")}
+                InputLabelProps={{
+                  shrink: true, // This ensures the label stays above the field when a date is selected
+                }}
+
+              />
+            </Grid>
+
+
+            {/* Pages Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Pages"
+                name="pages"
+                type="number"
+                value={formData.pages}
+                onChange={handleChange}
+                error={!!errors.pages}
+                helperText={errors.pages && errors.pages.join(", ")}
+              />
+            </Grid>
+
+            {/* Dimensions Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Dimensions"
+                name="dimensions"
+                value={formData.dimensions}
+                onChange={handleChange}
+                error={!!errors.dimensions}
+                helperText={errors.dimensions && errors.dimensions.join(", ")}
+              />
+            </Grid>
+
+            {/* Language Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Language"
+                name="language"
+                value={formData.language}
+                onChange={handleChange}
+                error={!!errors.language}
+                helperText={errors.language && errors.language.join(", ")}
+              />
+            </Grid>
+
+            {/* EAN Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="EAN"
+                name="ean"
+                value={formData.ean}
+                onChange={handleChange}
+                error={!!errors.ean}
+                helperText={errors.ean && errors.ean.join(", ")}
+              />
+            </Grid>
+
+            {/* Price Field */}
+            <Grid item xs={12}>
+              <TextField
+                fullWidth
+                label="Price"
+                name="price_handbook"
+                type="number"
+                value={formData.price_handbook}
+                onChange={handleChange}
+                error={!!errors.price_handbook}
+                helperText={errors.price_handbook && errors.price_handbook.join(", ")}
+              />
+            </Grid>
+
+
+            {/* Cover Image Field */}
+            <Grid item xs={12}>
+              <input
+                type="file"
+                name="cover_path"
+                onChange={handleFileChange}
+                accept="image/*"
+                required
+                style={{
+                  padding: '10px',
+                  fontSize: '16px',
+                  borderRadius: '5px',
+                  border: '1px solid #ccc',
+                  backgroundColor: '#f9f9f9',
+                  display: 'block',
+                  marginBottom: '10px',
+                }}
+              />
+
+              {/* Display error message */}
+              {errors.cover_path && (
+                <Typography color="red" sx={{ marginTop: '5px', fontSize: '14px' }}>
+                  {errors.cover_path}
                 </Typography>
-              </div>
-            )}
-          </Grid>
+              )}
+
+              {/* Display selected image preview */}
+              {filePreview && (
+                <div style={{ marginTop: '15px' }}>
+                  <img
+                    src={filePreview}
+                    alt="Cover Preview"
+                    style={{
+                      width: '150px',
+                      height: 'auto',
+                      borderRadius: '5px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    }}
+                  />
+                  <Typography sx={{ marginTop: '5px', fontSize: '14px', textAlign: 'center' }}>
+                    Image Preview
+                  </Typography>
+                </div>
+              )}
+            </Grid>
 
 
-          {/* Submit Button */}
-          <Grid item xs={12}>
-            <Button variant="contained" color="primary" type="submit" fullWidth>
-              Submit
-            </Button>
+            {/* Submit Button */}
+            <Grid item xs={12}>
+              <Button variant="contained" color="primary" type="submit" fullWidth>
+                Submit
+              </Button>
+            </Grid>
           </Grid>
-        </Grid>
-      </form>
-    </Box></>
+        </form>
+      </Box></>
   );
 };
 

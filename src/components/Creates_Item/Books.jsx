@@ -35,11 +35,11 @@ const BookTable = () => {
             setLoading(true);
             const [booksRes, categoriesRes, authorsRes] = await Promise.all([
                 axios.get('/getbooks'),
-                axios.get('/getcategories'),
+                axios.get('/categories'),
                 axios.get('/getauthors'),
             ]);
             setBooksData(booksRes.data.books);
-            setCategories(categoriesRes.data);
+            setCategories(categoriesRes.data.categories);
             setAuthors(authorsRes.data.authors);
         } catch (error) {
             console.error('Error fetching data:', error);
