@@ -1,167 +1,167 @@
-import { useState, useEffect } from 'react';
-import status from '../../assets/imgs/boy.png';
-import {
-    Paper,
-    Grid,
-    Typography,
-    TextField,
-    Button,
-    FormControl,
-    FormControlLabel,
-    Checkbox,
-    Snackbar,
-    Alert,
-    LinearProgress,
-} from '@mui/material';
-import axios from '../../API/loginAPi'; // Adjust the import according to your file structure
+import { useState } from 'react';
+import { TextField, Button, Typography, Grid, Paper, Box, IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 
 const Settings = () => {
-    const [adminName, setAdminName] = useState('');
-    const [email, setEmail] = useState('');
-    const [role,setRole] = useState('');
-    const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-    const [successMessage, setSuccessMessage] = useState('');
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-    // Fetch admin information
-    useEffect(() => {
-        const fetchAdminInfo = async () => {
-            try {
-                const response = await axios.get('/account'); 
-                setRole(response.data.user.role)
-                setAdminName(response.data.user.name);
-                setEmail(response.data.user.email);
-                setNotificationsEnabled(response.data.notificationsEnabled);
-            } catch (error) {
-                console.error('Error fetching admin information:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-        fetchAdminInfo();
-    }, []);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-    const handleSaveSettings = async () => {
-        try {
-            // Send updated settings to your backend
-            await axios.put('/admin/settings', {
-                name: adminName,
-                email: email,
-                notificationsEnabled: notificationsEnabled,
-            });
-            setSuccessMessage('Settings saved successfully!');
-            setSnackbarOpen(true);
-        } catch (error) {
-            console.error('Error saving settings:', error);
-            setSuccessMessage('Failed to save settings.');
-            setSnackbarOpen(true);
-        }
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-    const handleSnackbarClose = () => {
-        setSnackbarOpen(false);
-    };
-
-    if (loading) {
-        return <LinearProgress />;
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
     }
 
-    return (
-        <>
-            <div className="nameCreate">
-                <h1>Information Admin</h1>
-            </div>
-            <div style={{ padding: '20px' }}>
-                <Grid container spacing={2}>
-                    {/* Left Column: Admin Information */}
-                    <Grid item xs={12} md={6}>
-                        <Paper style={{ padding: '20px', borderRadius: '8px',display:"flex",flexDirection:"column", alignItems:"center"}}>
-                            <Typography variant="h6" gutterBottom>
-                                <div className="status">
-                                    <img src={status} alt="status icon" />
-                                </div>
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>{role}</strong> 
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Name:</strong> {adminName}
-                            </Typography>
-                            <Typography variant="body1">
-                                <strong>Email:</strong> {email}
-                            </Typography>
-                        </Paper>
-                    </Grid>
+    // Add your API request here to update the account info
 
-                    {/* Right Column: Editable Fields */}
-                    <Grid item xs={12} md={6}>
-                        <Paper style={{ padding: '20px', borderRadius: '8px' }}>
-                            <Typography variant="h6" gutterBottom>
-                                Edit Profile
-                            </Typography>
-                            <TextField
-                                label="Edit Admin Name"
-                                variant="outlined"
-                                fullWidth
-                                value={adminName}
-                                onChange={(e) => setAdminName(e.target.value)}
-                                style={{ marginBottom: '20px' }}
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                inputProps={{
-                                    style: { padding: '10px' }, // Padding inside the input
-                                }}
-                            />
-                            <TextField
-                                label="Edit Email Address"
-                                variant="outlined"
-                                type="email"
-                                fullWidth
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                style={{ marginBottom: '20px' }}
-                                InputLabelProps={{
-                                    shrink: true,
-                                }}
-                                inputProps={{
-                                    style: { padding: '10px' }, // Padding inside the input
-                                }}
-                            />
-                            <FormControl component="fieldset">
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={notificationsEnabled}
-                                            onChange={(e) => setNotificationsEnabled(e.target.checked)}
-                                            color="primary"
-                                        />
-                                    }
-                                    label="Enable Notifications"
-                                />
-                            </FormControl>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleSaveSettings}
-                                style={{ marginTop: '20px' }} // Margin for button
-                            >
-                                Save Settings
-                            </Button>
-                        </Paper>
-                    </Grid>
-                </Grid>
+    setSuccess('Account information updated successfully');
+    setError('');
+  };
 
-                <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-                    <Alert onClose={handleSnackbarClose} severity={successMessage.includes('Failed') ? 'error' : 'success'}>
-                        {successMessage}
-                    </Alert>
-                </Snackbar>
-            </div>
-        </>
-    );
+  return (
+    <Box sx={{ padding: 4 }}>
+      <Paper sx={{ padding: 4, borderRadius: 2, boxShadow: 3 }}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold' }}>
+          Account Settings
+        </Typography>
+        <Typography variant="body1" color="textSecondary" paragraph>
+          Update your profile details and change your password.
+        </Typography>
+
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={3}>
+            {/* Name Field */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Name"
+                variant="outlined"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                InputProps={{
+                  startAdornment: (
+                    <IconButton sx={{ padding: 0 }}>
+                      <AccountCircleIcon />
+                    </IconButton>
+                  ),
+                }}
+              />
+            </Grid>
+
+            {/* Email Field */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Email"
+                variant="outlined"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                type="email"
+                required
+                InputProps={{
+                  startAdornment: (
+                    <IconButton sx={{ padding: 0 }}>
+                      <EmailIcon />
+                    </IconButton>
+                  ),
+                }}
+              />
+            </Grid>
+
+            {/* Password Field */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Password"
+                variant="outlined"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                type="password"
+                required
+                InputProps={{
+                  startAdornment: (
+                    <IconButton sx={{ padding: 0 }}>
+                      <LockIcon />
+                    </IconButton>
+                  ),
+                }}
+              />
+            </Grid>
+
+            {/* Confirm Password Field */}
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                label="Confirm Password"
+                variant="outlined"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                type="password"
+                required
+                InputProps={{
+                  startAdornment: (
+                    <IconButton sx={{ padding: 0 }}>
+                      <LockOpenIcon />
+                    </IconButton>
+                  ),
+                }}
+              />
+            </Grid>
+          </Grid>
+
+          {/* Error and Success Messages */}
+          {error && (
+            <Typography color="error" sx={{ marginTop: 2 }}>
+              {error}
+            </Typography>
+          )}
+
+          {success && (
+            <Typography color="success" sx={{ marginTop: 2 }}>
+              {success}
+            </Typography>
+          )}
+
+          {/* Buttons */}
+          <Box sx={{ marginTop: 3 }}>
+            <Button variant="outlined" color="secondary" sx={{ marginRight: 2 }} onClick={() => navigate('/')}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" color="primary">
+              Save Changes
+            </Button>
+          </Box>
+        </form>
+      </Paper>
+    </Box>
+  );
 };
 
 export default Settings;

@@ -17,8 +17,13 @@ import Authors from './components/Creates_Item/Authors';
 import Categories from './components/Creates_Item/CategoryList';
 import SubCategoryForm from './components/Creates_Item/CreateSubCategory';
 import CategoryList from './components/Creates_Item/Category_Item';
+import SubCategory from './components/Creates_Item/SubCategory';
+import ControlProfile from './components/Setting/Profile';
+import CreateCoupon from './components/Discounts/Coupons';
+import CreateDiscount from './components/Creates_Item/CreateDiscount';
+import CreateDiscountBook from './components/Creates_Item/CreateDisciuntBooks'
+import DiscountList from './components/Creates_Item/Discount_List';
 import { BrowserRouter as Router, Routes, Route, Outlet, useNavigate } from 'react-router-dom';
-
 function App() {
   return (
     <Router>
@@ -62,6 +67,13 @@ function AppWithRouter() {
           <Route path="/setting" element={<Settings />} />
           <Route path="/subcategory" element={<SubCategoryForm />} />
           <Route path="/categorylist" element={<CategoryList />} />
+          <Route path="/subcategory_list" element={<SubCategory />} />
+          <Route path="/create_coupon" element={<CreateCoupon />} />
+          <Route path="/profile" element={<ControlProfile />} />
+          <Route path="/create_discount" element={<CreateDiscount />} />
+          <Route path="/create_discount_Books" element={<CreateDiscountBook />} />
+          <Route path="/discount_list" element={<DiscountList />} />
+          
         </Route>
       )}
 

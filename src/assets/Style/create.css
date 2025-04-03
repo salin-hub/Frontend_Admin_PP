@@ -3,11 +3,9 @@
     padding: 0;
 }
 .nameCreate{
-    border-radius: 10px;
-    background-color: #7786e3;
+    background-color: #ff0000;
 }
 .nameCreate h1{
-    text-align: center;
     font-size: 20px;
     margin: 0;
     color: rgb(255, 255, 255);

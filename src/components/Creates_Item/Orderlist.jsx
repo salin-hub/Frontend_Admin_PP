@@ -13,10 +13,11 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Button
+  Button,
+  InputAdornment
 } from '@mui/material';
 import axios_api from '../../API/axios';
-
+import { Search  } from '@mui/icons-material';
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,14 +90,32 @@ const OrderList = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <TextField
-        variant="outlined"
-        placeholder="Search order title"
-        fullWidth
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        style={{ marginBottom: '20px' }}
-      />
+      <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <TextField
+                    label="Search Book"
+                    variant="outlined"
+                    margin="normal"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <Search />
+                            </InputAdornment>
+                        ),
+                    }}
+                    sx={{
+                        width: '50%',
+                        borderRadius: '10px',
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: '10px',
+                        },
+                        '& .MuiOutlinedInput-root.Mui-focused': {
+                            borderColor: 'primary.main',
+                        }
+                    }}
+                />
+            </div>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>

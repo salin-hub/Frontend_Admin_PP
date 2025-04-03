@@ -11,6 +11,9 @@ const Create = () => {
     { path: '/CreateCategory', label: 'Categories', icon: <FeaturedPlayListIcon /> },
     { path: '/subcategory', label: 'Sub Categories', icon: <AccountTreeIcon /> },
     { path: '/Banner', label: 'Banner', icon: <ViewCarouselIcon /> },
+    { path: '/create_coupon', label: 'Coupon', icon: <ViewCarouselIcon /> },
+    { path: '/create_discount', label: 'Discount', icon: <ViewCarouselIcon /> },
+    { path: '/create_discount_Books', label: 'Discount Books', icon: <ViewCarouselIcon /> },
   ];
 
   return (

@@ -5,6 +5,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { styled } from '@mui/material/styles';
 import {
   Table,
   TableBody,
@@ -21,10 +22,21 @@ import {
   DialogTitle,
   Button,
   LinearProgress,
+  Stack,
+  Box
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+  ...theme.applyStyles('dark', {
+    backgroundColor: '#1A2027',
+  }),
+}));
 const CategoryList = () => {
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -64,7 +76,7 @@ const CategoryList = () => {
       id: category.id,
       name: category.name,
       description: category.description,
-      subcategory_id: category.subcategory_id || '', 
+      subcategory_id: category.subcategory_id || '',
     });
     setEditMode(true);
   };
@@ -74,7 +86,7 @@ const CategoryList = () => {
       setCategories(categories.map((category) =>
         category.id === currentCategory.id ? currentCategory : category
       ));
-      setEditMode(false); 
+      setEditMode(false);
     } catch (error) {
       setError('Failed to update category: ' + (error.response?.data?.message || error.message));
     }
@@ -116,8 +128,8 @@ const CategoryList = () => {
             <TableHead>
               <TableRow>
                 <TableCell align="center">No</TableCell>
-                <TableCell align="center">Category Name</TableCell>
-                <TableCell align="center">Category Description</TableCell>
+                <TableCell align="center">Name</TableCell>
+                <TableCell align="center">Description</TableCell>
                 <TableCell align="center">Subcategories</TableCell>
                 <TableCell align="center">Actions</TableCell>
               </TableRow>
@@ -131,7 +143,17 @@ const CategoryList = () => {
                       {category.name}
                     </Typography>
                   </TableCell>
-                  <TableCell align="center">{category.description}</TableCell>
+                  <TableCell
+                    sx={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      maxWidth: "400px",
+                      cursor: "pointer",
+                    }}
+                    title={category.description}
+                  >
+                    {category.description}
+                  </TableCell>
                   <TableCell align="center">
                     <Accordion expanded={expanded === category.id} onChange={() => handleExpansion(category.id)}>
                       <AccordionSummary
@@ -139,14 +161,30 @@ const CategoryList = () => {
                         aria-controls={`panel-${category.id}-content`}
                         id={`panel-${category.id}-header`}
                       >
-                        <Typography component="span">View Subcategories</Typography>
+                        <Typography component="span" sx={{ "width": "150px" }}>View</Typography>
                       </AccordionSummary>
                       <AccordionDetails sx={{ display: 'flex', flexDirection: 'column' }}>
                         {category.subcategories && category.subcategories.length > 0 ? (
-                          <ul style={{ padding: 0,  }}>
+                          <ul style={{ padding: 0, }}>
                             {category.subcategories.map((sub) => (
-                              <li key={sub.id} style={{display:"flex",alignItems:"center", justifyContent:"start", fontFamily:"Roboto, Nokora, sans-serif", fontSize:"15px",}} >
-                                {sub.name}
+                              <li key={sub.id} style={{ display: "flex", alignItems: "center", justifyContent: "start", fontFamily: "Roboto, Nokora, sans-serif", fontSize: "15px", }} >
+                                <Box sx={{ width: "100%" }}>
+                                  <Stack
+                                    sx={{
+                                      padding: '0px',
+                                      '&:hover': {
+                                        padding: '1px',
+                                        transition: 'padding 0.3s ease', 
+                                      },
+                                      transition: 'padding 0.3s ease'
+                                    }}
+                                  >
+                                    <Item sx={{ marginBottom: 1 }}>{sub.name}</Item>
+                                  </Stack>
+                                </Box>
+
+
+
                               </li>
                             ))}
                           </ul>

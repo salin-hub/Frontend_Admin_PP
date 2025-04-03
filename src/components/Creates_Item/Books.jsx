@@ -15,8 +15,10 @@ import {
     TextField,
     IconButton,
     LinearProgress,
+    InputAdornment
 } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { FaStar, FaRegStar } from "react-icons/fa";
+import { Edit, Delete, Search  } from '@mui/icons-material';
 import axios from '../../API/axios';
 
 const BookTable = () => {
@@ -28,8 +30,7 @@ const BookTable = () => {
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [currentBook, setCurrentBook] = useState(null);
     const [editBook, setEditBook] = useState(null);
-
-    // Fetch books, categories, and authors from API
+    const [searchTerm, setSearchTerm] = useState('');
     const fetchBooks = async () => {
         try {
             setLoading(true);
@@ -46,6 +47,13 @@ const BookTable = () => {
         } finally {
             setLoading(false);
         }
+    };
+    const renderStars = (rating) => {
+        const stars = [];
+        for (let i = 1; i <= 5; i++) {
+            stars.push(i <= rating ? <FaStar key={i} color="#FFD700" /> : <FaRegStar key={i} color="#FFD700" />);
+        }
+        return stars;
     };
 
     useEffect(() => {
@@ -69,7 +77,6 @@ const BookTable = () => {
 
     const handleEditSave = async () => {
         try {
-            // Prepare the data as a plain object, not FormData
             const updatedBook = {
                 title: editBook.title,
                 description: editBook.description || '',
@@ -83,49 +90,59 @@ const BookTable = () => {
                 ean: editBook.ean || '',
                 price_handbook: editBook.price_handbook || '',
             };
-
-            // Handle cover image if it has been updated
             if (editBook.cover_path instanceof File) {
                 updatedBook.cover_path = editBook.cover_path;
             }
-
-            // Log the object being sent to the server
             console.log('updatedBook before submitting:', updatedBook);
-
-            // Send PUT request with the data as JSON
             const response = await axios.put(`/books/${editBook.id}`, updatedBook, {
                 headers: {
-                    'Content-Type': 'application/json', // Set content type to JSON
+                    'Content-Type': 'application/json',
                 },
             });
 
             console.log('Response:', response.data);
-
-            // Refresh the book list and close the edit form
             fetchBooks();
             setEditOpen(false);
         } catch (error) {
             console.error('Error updating book:', error.response?.data || error.message);
-
-            // Log the validation errors if available
             if (error.response?.data?.errors) {
                 console.log('Validation Errors:', error.response.data.errors);
             }
         }
     };
-
-
-
-
-
-
-    const getCategoryName = (id) => categories.find((category) => category.id === id)?.name || 'Unknown';
-    const getAuthorName = (id) => authors.find((author) => author.id === id)?.name || 'Unknown';
-
+    const filteredBooks = booksData.filter((book) =>
+        book.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     return (
         <div style={{ position: 'relative', overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '10px' }}>
             <div className="nameCreate">
                 <h1>Books List</h1>
+            </div>
+            <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <TextField
+                    label="Search Book"
+                    variant="outlined"
+                    margin="normal"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <Search />
+                            </InputAdornment>
+                        ),
+                    }}
+                    sx={{
+                        width: '50%',
+                        borderRadius: '10px',
+                        '& .MuiOutlinedInput-root': {
+                            borderRadius: '10px',
+                        },
+                        '& .MuiOutlinedInput-root.Mui-focused': {
+                            borderColor: 'primary.main',
+                        }
+                    }}
+                />
             </div>
             {loading && <LinearProgress sx={{ marginBottom: '20px' }} />}
             <TableContainer component={Paper}>
@@ -145,11 +162,14 @@ const BookTable = () => {
                             <TableCell align='center'>Dimensions</TableCell>
                             <TableCell align='center'>Language</TableCell>
                             <TableCell align='center'>EAN/UPC</TableCell>
+                            <TableCell align='center'>Discount</TableCell>
+                            <TableCell align='center'>Review</TableCell>
+                            <TableCell align='center'>Rating</TableCell>
                             <TableCell align='center'>Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {booksData.map((book, index) => (
+                        {filteredBooks.map((book, index) => (
                             <TableRow key={book.id}>
                                 <TableCell>{index + 1}</TableCell>
                                 <TableCell>
@@ -159,7 +179,7 @@ const BookTable = () => {
                                         style={{ width: '50px', height: 'auto' }}
                                     />
                                 </TableCell>
-                                <TableCell 
+                                <TableCell
                                     sx={{
                                         overflow: "hidden",
                                         textOverflow: "ellipsis",
@@ -170,8 +190,8 @@ const BookTable = () => {
                                 >
                                     {book.title}
                                 </TableCell>
-                                <TableCell sx={{color:"red"}}>{getCategoryName(book.category_id)}</TableCell>
-                                <TableCell>{getAuthorName(book.author_id)}</TableCell>
+                                <TableCell sx={{ color: "red" }}>{book.category.name}</TableCell>
+                                <TableCell>{book.author.name}</TableCell>
                                 <TableCell
                                     sx={{
                                         overflow: "hidden",
@@ -184,13 +204,31 @@ const BookTable = () => {
                                     {book.description}
                                 </TableCell>
 
-                                <TableCell sx={{color:"red"}}>${book.price_handbook || 'N/A'}</TableCell>
+                                <TableCell sx={{ color: "red" }}>{book.discounted_price && book.discounted_price < book.original_price ? (
+                                    <div style={{ "display": "flex", "flexDirection": "column" }}>
+                                        <span style={{ textDecoration: "line-through", color: "gray", marginRight: "10px" }}>
+                                            USD {book.original_price}
+                                        </span>
+                                        <span style={{ fontWeight: "bold", color: "red" }}>
+                                            USD {book.discounted_price}
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <span style={{ fontWeight: "bold" }}>USD {book.original_price}</span>
+                                )}</TableCell>
                                 <TableCell align='center'>{book.publisher}</TableCell>
                                 <TableCell >{book.publish_date}</TableCell>
                                 <TableCell>{book.pages}</TableCell>
                                 <TableCell>{book.dimensions}</TableCell>
                                 <TableCell>{book.language}</TableCell>
                                 <TableCell>{book.ean}</TableCell>
+                                <TableCell sx={{ color: "red" }}>{book.discount && book.discount.discount_percentage > 0 && (
+                                <div>
+                                    {book.discount.discount_percentage}% OFF
+                                </div>
+                            )}</TableCell>
+                            <TableCell sx={{"textAlign":"center"}}>{book.reviewcount}</TableCell>
+                            <TableCell>{renderStars(book.ratingCount)}</TableCell>
                                 <TableCell>
                                     <IconButton onClick={() => handleEditOpen(book)} >
                                         <Edit />
@@ -210,8 +248,6 @@ const BookTable = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
-
-            {/* Edit Dialog */}
             <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
                 <DialogTitle>Edit Book</DialogTitle>
                 <DialogContent>
@@ -309,8 +345,8 @@ const BookTable = () => {
                     <TextField
                         label="Price"
                         type="number"
-                        value={editBook?.price_handbook || ''}
-                        onChange={(e) => setEditBook({ ...editBook, price_handbook: e.target.value })}
+                        value={editBook?.original_price || ''}
+                        onChange={(e) => setEditBook({ ...editBook, original_price: e.target.value })}
                         fullWidth
                         margin="dense"
                     />
@@ -341,8 +377,6 @@ const BookTable = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            {/* Delete Confirmation Dialog */}
             <Dialog
                 open={deleteConfirmOpen}
                 onClose={() => setDeleteConfirmOpen(false)}
