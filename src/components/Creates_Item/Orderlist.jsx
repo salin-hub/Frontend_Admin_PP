@@ -17,7 +17,7 @@ import {
   InputAdornment
 } from '@mui/material';
 import axios_api from '../../API/axios';
-import { Search  } from '@mui/icons-material';
+import { Search } from '@mui/icons-material';
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,35 +89,45 @@ const OrderList = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '10px' }}>
       <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <TextField
-                    label="Search Book"
-                    variant="outlined"
-                    margin="normal"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <Search />
-                            </InputAdornment>
-                        ),
-                    }}
-                    sx={{
-                        width: '50%',
-                        borderRadius: '10px',
-                        '& .MuiOutlinedInput-root': {
-                            borderRadius: '10px',
-                        },
-                        '& .MuiOutlinedInput-root.Mui-focused': {
-                            borderColor: 'primary.main',
-                        }
-                    }}
-                />
-            </div>
-      <TableContainer component={Paper}>
-        <Table>
+        <TextField
+          label="Search Book"
+          variant="outlined"
+          margin="normal"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <Search />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            width: '50%',
+            borderRadius: '10px',
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '10px',
+            },
+            '& .MuiOutlinedInput-root.Mui-focused': {
+              borderColor: 'primary.main',
+            }
+          }}
+        />
+      </div>
+      <TableContainer
+        component={Paper}
+        sx={{
+          maxHeight: '73vh',
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none', 
+          },
+        }}
+      >
+        <Table stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell align='center'>No</TableCell>
@@ -132,18 +142,16 @@ const OrderList = () => {
               <TableCell align='center'>Actions</TableCell>
             </TableRow>
           </TableHead>
+
           <TableBody>
-            {filteredOrders.map((order, index) => (
+            {filteredOrders.map((order, index) =>
               order.items.map((item, itemIndex) => (
                 <TableRow key={`${index}-${itemIndex}`}>
                   <TableCell align='center'>{item.id}</TableCell>
                   <TableCell align='center'>{order.username}</TableCell>
                   <TableCell align='center'>
                     <img
-                      src={
-                        item.book.cover_path
-
-                      }
+                      src={item.book.cover_path}
                       alt={item.book.title}
                       style={{ width: '50px', height: '75px' }}
                     />
@@ -175,7 +183,7 @@ const OrderList = () => {
                   </TableCell>
                 </TableRow>
               ))
-            ))}
+            )}
           </TableBody>
         </Table>
       </TableContainer>

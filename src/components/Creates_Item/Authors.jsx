@@ -19,10 +19,11 @@ import {
   DialogTitle,
   Button,
   LinearProgress,
+  Box, InputAdornment
 } from '@mui/material';
+import { Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-// import VisibilityIcon from '@mui/icons-material/Visibility';
 import axios from '../../API/axios';
 
 const AuthorList = () => {
@@ -52,8 +53,8 @@ const AuthorList = () => {
   }, []);
 
   // Search filter
-  const handleSearch = (event) => {
-    setSearchTerm(event.target.value);
+  const handleSearch = (value) => {
+    setSearchTerm(value);
   };
 
   // Delete author
@@ -140,14 +141,35 @@ const AuthorList = () => {
             </Alert>
           </Snackbar>
         )}
-        <TextField
-          variant="outlined"
-          placeholder="Search author name"
-          fullWidth
-          style={{ marginBottom: '20px' }}
-          value={searchTerm}
-          onChange={handleSearch}
-        />
+        <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
+          <TextField
+            sx={{ width: "400px" }}
+            label="Search Author"
+            variant="outlined"
+            size="small"
+            placeholder="search author by name..."
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+              endAdornment: searchTerm && (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => handleSearch('')}
+                    size="small"
+                    aria-label="clear search"
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                </InputAdornment>
+              )
+            }}
+          />
+        </Box>
 
         <TableContainer component={Paper}>
           <Table>

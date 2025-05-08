@@ -2,13 +2,10 @@
     margin: 0;
     padding: 0;
 }
-.nameCreate{
-    background-color: #ff0000;
-}
 .nameCreate h1{
     font-size: 20px;
     margin: 0;
-    color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
     padding: 10px;
     font-family: "Roboto", "Nokora", sans-serif;
     
@@ -20,6 +17,9 @@
     gap:20px;
     justify-content: center;
 }
+.logouts{
+    margin-top: 100px;
+  }
 
 .item{
     display: flex;
@@ -43,7 +43,6 @@
 .icon{
     color: black;
 }
-
 
 
 

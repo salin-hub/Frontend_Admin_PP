@@ -47,29 +47,32 @@ export default function DiscountBook() {
     try {
       await axios_api.post("/DiscountBook", formData);
       setSuccess(true);
-      setFormData({ book_id: "", discount_id: "" }); // Reset fields
-      fetchData(); // Refresh list
+      setFormData({ book_id: "", discount_id: "" });
+      fetchData();
     } catch (err) {
       console.log(err);
       setError("Failed to apply discount");
     }
   };
+
   return (
     <Container maxWidth="sm">
       <Box sx={{ mt: 5, p: 2, bgcolor: "white", boxShadow: 3, borderRadius: 2 }}>
         <Typography variant="h5" sx={{ mb: 2, textAlign: "center" }}>
           Apply Discount to Book
         </Typography>
+
         {success && <Alert severity="success">Discount applied successfully!</Alert>}
         {error && <Alert severity="error">{error}</Alert>}
 
         <form onSubmit={handleSubmit}>
+          {/* Book Selection */}
           <TextField
             fullWidth
             select
             label="Select Book"
             name="book_id"
-            value={formData.book_id}
+            value={formData.book_id || ""} // Ensure value is never undefined
             onChange={handleChange}
             margin="normal"
             required
@@ -81,24 +84,32 @@ export default function DiscountBook() {
             ))}
           </TextField>
 
+          {/* Discount Selection */}
           <TextField
             fullWidth
             select
             label="Select Discount"
             name="discount_id"
-            value={formData.discount_id}
+            value={formData.discount_id || ""} // Ensure value is never undefined
             onChange={handleChange}
             margin="normal"
             required
           >
             {discounts.map((discount) => (
-              <MenuItem key={discount.id} value={discount.id}>
-                {discount.description} - {discount.discount_percentage}%
+              <MenuItem key={discount.discount_id} value={discount.discount_id}>
+                {discount.discount_percentage}%
               </MenuItem>
             ))}
           </TextField>
 
-          <Button fullWidth type="submit" variant="contained" color="primary" sx={{ mt: 2 }}>
+          {/* Submit Button */}
+          <Button
+            fullWidth
+            type="submit"
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2 }}
+          >
             Apply Discount
           </Button>
         </form>

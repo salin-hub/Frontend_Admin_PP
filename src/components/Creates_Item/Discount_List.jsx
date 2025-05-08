@@ -138,9 +138,9 @@ const DiscountList = () => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {discounts.map((discount) => (
-                                <TableRow key={discount.id}>
-                                    <TableCell>{discount.id}</TableCell>
+                            {discounts.map((discount, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{discount.discount_id}</TableCell>
                                     <TableCell>{discount.discount_percentage}%</TableCell>
                                     <TableCell>{discount.start_date}</TableCell>
                                     <TableCell>{discount.end_date}</TableCell>

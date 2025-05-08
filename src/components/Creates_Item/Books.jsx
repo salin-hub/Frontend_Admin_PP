@@ -17,8 +17,9 @@ import {
     LinearProgress,
     InputAdornment
 } from '@mui/material';
+
 import { FaStar, FaRegStar } from "react-icons/fa";
-import { Edit, Delete, Search  } from '@mui/icons-material';
+import { Edit, Delete, Search } from '@mui/icons-material';
 import axios from '../../API/axios';
 
 const BookTable = () => {
@@ -31,6 +32,8 @@ const BookTable = () => {
     const [currentBook, setCurrentBook] = useState(null);
     const [editBook, setEditBook] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+
+
     const fetchBooks = async () => {
         try {
             setLoading(true);
@@ -39,7 +42,7 @@ const BookTable = () => {
                 axios.get('/categories'),
                 axios.get('/getauthors'),
             ]);
-            setBooksData(booksRes.data.books);
+            setBooksData(booksRes.data.books.reverse());
             setCategories(categoriesRes.data.categories);
             setAuthors(authorsRes.data.authors);
         } catch (error) {
@@ -114,7 +117,7 @@ const BookTable = () => {
         book.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
     return (
-        <div style={{ position: 'relative', overflowX: 'auto', whiteSpace: 'nowrap', paddingBottom: '10px' }}>
+        <div style={{ position: 'relative', overflowX: 'auto', whiteSpace: 'nowrap' }}>
             <div className="nameCreate">
                 <h1>Books List</h1>
             </div>
@@ -145,9 +148,16 @@ const BookTable = () => {
                 />
             </div>
             {loading && <LinearProgress sx={{ marginBottom: '20px' }} />}
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
+            <TableContainer component={Paper} sx={{
+                maxHeight: '70vh',
+                overflowY: 'auto',
+                scrollbarWidth: 'auto',
+                '&::-webkit-scrollbar': {
+                    display: 'none',
+                },
+            }}>
+                <Table stickyHeader>
+                    <TableHead >
                         <TableRow>
                             <TableCell align='center'>No</TableCell>
                             <TableCell align='center'>Book Image</TableCell>
@@ -165,6 +175,7 @@ const BookTable = () => {
                             <TableCell align='center'>Discount</TableCell>
                             <TableCell align='center'>Review</TableCell>
                             <TableCell align='center'>Rating</TableCell>
+                            <TableCell align='center'>Stock</TableCell>
                             <TableCell align='center'>Actions</TableCell>
                         </TableRow>
                     </TableHead>
@@ -223,12 +234,20 @@ const BookTable = () => {
                                 <TableCell>{book.language}</TableCell>
                                 <TableCell>{book.ean}</TableCell>
                                 <TableCell sx={{ color: "red" }}>{book.discount && book.discount.discount_percentage > 0 && (
-                                <div>
-                                    {book.discount.discount_percentage}% OFF
-                                </div>
-                            )}</TableCell>
-                            <TableCell sx={{"textAlign":"center"}}>{book.reviewcount}</TableCell>
-                            <TableCell>{renderStars(book.ratingCount)}</TableCell>
+                                    <div>
+                                        {book.discount.discount_percentage}% OFF
+                                    </div>
+                                )}</TableCell>
+                                <TableCell sx={{ "textAlign": "center" }}>{book.reviewcount}</TableCell>
+                                <TableCell>{renderStars(book.ratingCount)}</TableCell>
+                                <TableCell align='center'><span
+                                    style={{
+                                        color: !book.quantity || book.quantity < 5 ? 'red' : 'black',
+                                        fontWeight: !book.quantity ? 'bold' : 'normal'
+                                    }}
+                                >
+                                    {!book.quantity ? 'Unavailable' : book.quantity}
+                                </span></TableCell>
                                 <TableCell>
                                     <IconButton onClick={() => handleEditOpen(book)} >
                                         <Edit />
@@ -391,6 +410,8 @@ const BookTable = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+
         </div>
     );
 };

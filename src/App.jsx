@@ -11,7 +11,6 @@ import SideBar from './components/Cotroller_full/SildeBar';
 import Create from '../src/components/Creates_Item/Create';
 import CreateCategoryForm from './components/Creates_Item/CreateCategory';
 import LoginPage from './components/Accounts/login_acc';
-import UserTable from './components/Accounts/UserController';
 import Settings from './components/Setting/Setting';
 import Authors from './components/Creates_Item/Authors';
 import Categories from './components/Creates_Item/CategoryList';
@@ -23,6 +22,8 @@ import CreateCoupon from './components/Discounts/Coupons';
 import CreateDiscount from './components/Creates_Item/CreateDiscount';
 import CreateDiscountBook from './components/Creates_Item/CreateDisciuntBooks'
 import DiscountList from './components/Creates_Item/Discount_List';
+import StockManager from './components/ManageStock';
+import Usertable from './components/UserTable'
 import { BrowserRouter as Router, Routes, Route, Outlet, useNavigate } from 'react-router-dom';
 function App() {
   return (
@@ -63,7 +64,6 @@ function AppWithRouter() {
           <Route path="/CreateCategory" element={<CreateCategoryForm />} />
           <Route path="/book" element={<Book />} />
           <Route path="/orderlist" element={<OrderList />} />
-          <Route path="/usertable" element={<UserTable />} />
           <Route path="/setting" element={<Settings />} />
           <Route path="/subcategory" element={<SubCategoryForm />} />
           <Route path="/categorylist" element={<CategoryList />} />
@@ -73,7 +73,8 @@ function AppWithRouter() {
           <Route path="/create_discount" element={<CreateDiscount />} />
           <Route path="/create_discount_Books" element={<CreateDiscountBook />} />
           <Route path="/discount_list" element={<DiscountList />} />
-          
+          <Route path="/stocks" element={<StockManager/>}/>
+          <Route path="/usertable" element={<Usertable/>}/>
         </Route>
       )}
 
@@ -93,7 +94,7 @@ const MainLayout = () => {
           <SideBar />
         </div>
         <div className="body_item">
-          <Outlet /> {/* Child routes will render here */}
+          <Outlet /> 
         </div>
       </div>
     </div>
