@@ -4,7 +4,7 @@ import {
     Button, TextField, Dialog, DialogTitle, DialogContent, DialogActions,
     Typography, IconButton, LinearProgress, Box, InputAdornment
 } from '@mui/material';
-import { Edit, Delete, Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
+import { Edit,Search as SearchIcon, Clear as ClearIcon } from '@mui/icons-material';
 import axios from '../API/axios';
 
 const StockManager = () => {
@@ -29,18 +29,6 @@ const StockManager = () => {
     useEffect(() => {
         fetchBooks();
     }, []);
-
-    const handleDelete = async (bookId) => {
-        if (!window.confirm('Are you sure you want to delete this book?')) return;
-        try {
-            await axios.delete(`/books/${bookId}`);
-            setBooks(books.filter(book => book.id !== bookId));
-        } catch (error) {
-            console.error('Error deleting book:', error);
-            alert('Failed to delete book.');
-        }
-    };
-
     const handleEditClick = (book) => {
         setSelectedBook({ ...book });
         setOpenEditDialog(true);
@@ -48,20 +36,23 @@ const StockManager = () => {
 
     const handleEditSave = async () => {
         try {
-            await axios.put(`/books/${selectedBook.id}`, {
-                title: selectedBook.title,
-                price_handbook: selectedBook.price_handbook,
+            await axios.put(`/updatestock/${selectedBook.id}`, {
                 quantity: selectedBook.quantity,
             });
+    
+            // Update local state with the updated book quantity
             setBooks(books.map(book =>
-                book.id === selectedBook.id ? { ...selectedBook } : book
+                book.id === selectedBook.id ? { ...book, quantity: selectedBook.quantity } : book
             ));
+    
             setOpenEditDialog(false);
+            alert('Stock updated successfully!');
         } catch (error) {
             console.error('Error saving book details:', error);
             alert('Failed to save changes.');
         }
     };
+    
 
     const filteredBooks = books.filter(book =>
         book.title.toLowerCase().includes(searchText.toLowerCase())
@@ -129,10 +120,10 @@ const StockManager = () => {
                                     </TableCell>
                                     <TableCell>{book.title}</TableCell>
                                     <TableCell align="center">
-                                        {book.discounted_price && book.discounted_price < book.original_price ? (
+                                        {book.discounted_price && book.discounted_price < book.price_handbook ? (
                                             <div style={{ display: "flex", flexDirection: "column" }}>
                                                 <span style={{ textDecoration: "line-through", color: "gray" }}>
-                                                    ${book.original_price}
+                                                    ${book.price_handbook}
                                                 </span>
                                                 <span style={{ fontWeight: "bold", color: "red" }}>
                                                     ${book.discounted_price}
@@ -140,7 +131,7 @@ const StockManager = () => {
                                             </div>
                                         ) : (
                                             <span style={{ fontWeight: "bold" }}>
-                                                ${book.original_price}
+                                                ${book.price_handbook}
                                             </span>
                                         )}
                                     </TableCell>
@@ -158,9 +149,7 @@ const StockManager = () => {
                                         <IconButton onClick={() => handleEditClick(book)}>
                                             <Edit color="primary" />
                                         </IconButton>
-                                        <IconButton onClick={() => handleDelete(book.id)}>
-                                            <Delete color="error" />
-                                        </IconButton>
+                                        
                                     </TableCell>
                                 </TableRow>
                             ))
@@ -177,14 +166,14 @@ const StockManager = () => {
 
             {/* Edit Dialog */}
             <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
-                <DialogTitle>Edit Book Details</DialogTitle>
+                <DialogTitle>Update Stock</DialogTitle>
                 <DialogContent>
                     <TextField
                         label="Title"
                         fullWidth
                         margin="dense"
                         value={selectedBook?.title || ''}
-                        onChange={(e) => setSelectedBook({ ...selectedBook, title: e.target.value })}
+                        disabled // 🔒 make this field read-only
                     />
                     <TextField
                         label="Price (USD)"
@@ -192,15 +181,19 @@ const StockManager = () => {
                         type="number"
                         margin="dense"
                         value={selectedBook?.original_price || ''}
-                        onChange={(e) => setSelectedBook({ ...selectedBook, original_price: parseFloat(e.target.value) })}
+                        disabled // 🔒 make this field read-only
                     />
                     <TextField
                         label="Quantity"
                         fullWidth
                         type="number"
                         margin="dense"
+                        inputProps={{ min: 0 }}
                         value={selectedBook?.quantity || ''}
-                        onChange={(e) => setSelectedBook({ ...selectedBook, quantity: parseInt(e.target.value, 10) })}
+                        onChange={(e) => {
+                            const value = Math.max(0, parseInt(e.target.value, 10) || 0);
+                            setSelectedBook({ ...selectedBook, quantity: value });
+                        }}
                     />
                 </DialogContent>
                 <DialogActions>
@@ -212,6 +205,7 @@ const StockManager = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
         </div>
     );
 };

@@ -30,9 +30,9 @@ const BookTable = () => {
     const [editOpen, setEditOpen] = useState(false);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [currentBook, setCurrentBook] = useState(null);
-    const [editBook, setEditBook] = useState(null);
+    const [editBook, setEditBook] = useState({ title: '' });
     const [searchTerm, setSearchTerm] = useState('');
-
+    const [updating, setUpdating] = useState(false);
 
     const fetchBooks = async () => {
         try {
@@ -72,47 +72,71 @@ const BookTable = () => {
             console.error('Error deleting book:', error);
         }
     };
-
     const handleEditOpen = (book) => {
-        setEditBook(book);
+        setEditBook({
+            id: book.id,
+            title: book.title,
+            description: book.description || '',
+            author_id: book.author_id,
+            category_id: book.category_id,
+            publisher: book.publisher || '',
+            publish_date: book.publish_date || '',
+            pages: book.pages || '',
+            dimensions: book.dimensions || '',
+            language: book.language || '',
+            ean: book.ean || '',
+            quantity: book.quantity || '',
+            price_handbook: book.price_handbook || '',
+            cover_path: book.cover_path || '',
+        });
         setEditOpen(true);
     };
+    const handleCoverImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setEditBook({ ...editBook, cover_path: file });
+        }
+    };
+
 
     const handleEditSave = async () => {
         try {
-            const updatedBook = {
-                title: editBook.title,
-                description: editBook.description || '',
-                author_id: editBook.author_id,
-                category_id: editBook.category_id,
-                publisher: editBook.publisher || '',
-                publish_date: editBook.publish_date || '',
-                pages: editBook.pages || '',
-                dimensions: editBook.dimensions || '',
-                language: editBook.language || '',
-                ean: editBook.ean || '',
-                price_handbook: editBook.price_handbook || '',
-            };
+            setUpdating(true);
+            const Data = new FormData();
+            Data.append('title', editBook.title || '');
+            Data.append('description', editBook.description || '');
+            Data.append('author_id', editBook.author_id || '');
+            Data.append('category_id', editBook.category_id || '');
+            Data.append('publisher', editBook.publisher || '');
+            Data.append('publish_date', editBook.publish_date || '');
+            Data.append('pages', editBook.pages || '');
+            Data.append('dimensions', editBook.dimensions || '');
+            Data.append('language', editBook.language || '');
+            Data.append('ean', editBook.ean || '');
+            Data.append('price_handbook', editBook.price_handbook || '');
+            Data.append('quantity', editBook.quantity || '');
             if (editBook.cover_path instanceof File) {
-                updatedBook.cover_path = editBook.cover_path;
+                Data.append('cover_path', editBook.cover_path);
             }
-            console.log('updatedBook before submitting:', updatedBook);
-            const response = await axios.put(`/books/${editBook.id}`, updatedBook, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+            const response = await axios.post(`/books/${editBook.id}`, Data, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+                params: { _method: 'PUT' }
             });
 
-            console.log('Response:', response.data);
-            fetchBooks();
-            setEditOpen(false);
+            console.log('Book updated successfully:', response.data);
+            fetchBooks(); // Refresh book list
+            setEditOpen(false); // Close edit dialog
         } catch (error) {
             console.error('Error updating book:', error.response?.data || error.message);
             if (error.response?.data?.errors) {
                 console.log('Validation Errors:', error.response.data.errors);
             }
+        } finally {
+            setUpdating(false); // Stop loading
         }
     };
+
+
     const filteredBooks = booksData.filter((book) =>
         book.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -215,17 +239,17 @@ const BookTable = () => {
                                     {book.description}
                                 </TableCell>
 
-                                <TableCell sx={{ color: "red" }}>{book.discounted_price && book.discounted_price < book.original_price ? (
+                                <TableCell sx={{ color: "red" }}>{book.discounted_price && book.discounted_price < book.price_handbook ? (
                                     <div style={{ "display": "flex", "flexDirection": "column" }}>
                                         <span style={{ textDecoration: "line-through", color: "gray", marginRight: "10px" }}>
-                                            USD {book.original_price}
+                                            USD {book.price_handbook}
                                         </span>
                                         <span style={{ fontWeight: "bold", color: "red" }}>
                                             USD {book.discounted_price}
                                         </span>
                                     </div>
                                 ) : (
-                                    <span style={{ fontWeight: "bold" }}>USD {book.original_price}</span>
+                                    <span style={{ fontWeight: "bold" }}>USD {book.price_handbook}</span>
                                 )}</TableCell>
                                 <TableCell align='center'>{book.publisher}</TableCell>
                                 <TableCell >{book.publish_date}</TableCell>
@@ -272,7 +296,7 @@ const BookTable = () => {
                 <DialogContent>
                     <TextField
                         label="Title"
-                        value={editBook?.title || ''}
+                        value={editBook.title || ''}
                         onChange={(e) => setEditBook({ ...editBook, title: e.target.value })}
                         fullWidth
                         margin="dense"
@@ -316,6 +340,25 @@ const BookTable = () => {
                             </option>
                         ))}
                     </TextField>
+                    {/* Optional: Subcategory Field */}
+                    {/* 
+        <TextField
+            label="Subcategory"
+            select
+            SelectProps={{ native: true }}
+            value={editBook?.subcategory_id || ''}
+            onChange={(e) => setEditBook({ ...editBook, subcategory_id: e.target.value })}
+            fullWidth
+            margin="dense"
+        >
+            <option value="">Select Subcategory</option>
+            {subcategories.map((subcategory) => (
+                <option key={subcategory.id} value={subcategory.id}>
+                    {subcategory.name}
+                </option>
+            ))}
+        </TextField>
+        */}
                     <TextField
                         label="Publisher"
                         value={editBook?.publisher || ''}
@@ -364,38 +407,49 @@ const BookTable = () => {
                     <TextField
                         label="Price"
                         type="number"
-                        value={editBook?.original_price || ''}
-                        onChange={(e) => setEditBook({ ...editBook, original_price: e.target.value })}
+                        value={editBook?.price_handbook || ''}
+                        onChange={(e) => setEditBook({ ...editBook, price_handbook: e.target.value })}
                         fullWidth
                         margin="dense"
                     />
                     <TextField
-                        type="file"
-                        inputProps={{ accept: 'image/*' }}
-                        onChange={(e) => {
-                            const file = e.target.files[0];
-                            setEditBook({ ...editBook, cover_path: file });
-                        }}
+                        label="Quantity"
+                        type="number"
+                        value={editBook?.quantity || ''}
+                        onChange={(e) => setEditBook({ ...editBook, quantity: e.target.value })}
                         fullWidth
                         margin="dense"
                     />
-                    {editBook?.cover_path && !(editBook.cover_path instanceof File) && (
-                        <img
-                            src={editBook.cover_path}
-                            alt="Book Cover"
-                            style={{ width: '100px', marginTop: '10px' }}
-                        />
+                    <Button variant="contained" component="label" fullWidth sx={{ mt: 2 }}>
+                        Upload Cover Image
+                        <input type="file" accept="image/*" hidden onChange={handleCoverImageChange} />
+                    </Button>
+
+                    {editBook.cover_path && (
+                        <div style={{ marginTop: 10, textAlign: 'center' }}>
+                            <p style={{ fontSize: 12 }}>Preview:</p>
+                            <img
+                                src={editBook.cover_path instanceof File ? URL.createObjectURL(editBook.cover_path) : editBook.cover_path}
+                                alt="Cover Preview"
+                                style={{ maxHeight: 200, maxWidth: '100%', borderRadius: 5 }}
+                            />
+                            {!(editBook.cover_path instanceof File) && (
+                                <p style={{ fontSize: 10, color: 'gray' }}>Showing current image</p>
+                            )}
+                        </div>
                     )}
+
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setEditOpen(false)} color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={handleEditSave} color="secondary">
-                        Save
+                    <Button onClick={handleEditSave} color="secondary" variant="contained" disabled={updating}>
+                        {updating ? 'Saving...' : 'Save'}
                     </Button>
                 </DialogActions>
             </Dialog>
+
             <Dialog
                 open={deleteConfirmOpen}
                 onClose={() => setDeleteConfirmOpen(false)}

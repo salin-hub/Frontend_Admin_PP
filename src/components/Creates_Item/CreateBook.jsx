@@ -409,8 +409,8 @@ const BookForm = () => {
                 )}
               </Grid>
             </div>
-            <Grid item xs={12}>
-              <Button variant="contained" color="primary" type="submit" fullWidth>
+            <Grid item xs={12} display={"flex"} justifyContent={"center"}>
+              <Button variant="contained" color="primary" type="submit" style={{width:"200px"}} >
                 Submit
               </Button>
             </Grid>

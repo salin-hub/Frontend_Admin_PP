@@ -58,7 +58,7 @@ export default function DiscountBook() {
   return (
     <Container maxWidth="sm">
       <Box sx={{ mt: 5, p: 2, bgcolor: "white", boxShadow: 3, borderRadius: 2 }}>
-        <Typography variant="h5" sx={{ mb: 2, textAlign: "center" }}>
+        <Typography variant="h6" sx={{ mb: 2, textAlign: "center", color:"black"}}>
           Apply Discount to Book
         </Typography>
 

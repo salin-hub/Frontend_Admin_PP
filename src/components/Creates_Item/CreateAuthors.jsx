@@ -1,29 +1,38 @@
 import { useState } from 'react';
-import { TextField, Button } from '@mui/material';
+import { TextField, Button, Grid } from '@mui/material';
+import { CircularProgress, Backdrop } from '@mui/material';
 import axios from '../../API/axios';
+import {
 
+  Box,
+
+} from "@mui/material";
 const CreateAuthorForm = () => {
+  const [loading, setLoading] = useState(false);
   const [authorData, setAuthorData] = useState({
     name: '',
     email: '',
     description: '',
     image: null,
   });
-
-  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setAuthorData({ ...authorData, [name]: value });
   };
-
-  // Handle file input change
+  const handleReset = () => {
+    setAuthorData({
+      name: '',
+      email: '',
+      description: '',
+      image: null,
+    });
+  };
   const handleFileChange = (e) => {
     setAuthorData({ ...authorData, image: e.target.files[0] });
   };
-
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const formData = new FormData();
     formData.append('name', authorData.name);
@@ -40,8 +49,7 @@ const CreateAuthorForm = () => {
           Authorization: `Bearer ${localStorage.getItem('token')}`, // Assuming you use token-based auth
         },
       });
-      alert(response.data.message); // Display success message
-      // Clear form after successful submission
+      alert(response.data.message);
       setAuthorData({
         name: '',
         email: '',
@@ -50,92 +58,137 @@ const CreateAuthorForm = () => {
       });
     } catch (error) {
       if (error.response && error.response.data) {
-        alert(error.response.data.message); // Display error message
+        alert(error.response.data.message);
       } else {
         alert('An error occurred while creating the author.');
       }
+    } finally{
+      setLoading(false)
     }
   };
 
   return (
     <>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
       <div className="nameCreate">
         <h1>Create Authors</h1>
       </div>
-      <form onSubmit={handleSubmit} style={{ padding: '10px', maxWidth: '90%', margin: 'auto' }}>
-        {/* Author Name */}
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Author Name"
-          variant="outlined"
-          placeholder="Enter Author Name"
-          name="name"
-          value={authorData.name}
-          onChange={handleChange}
-        />
+      <div style={{ display: "flex", justifyContent: "center" }}>
 
-        {/* Author Email */}
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Author Email"
-          variant="outlined"
-          placeholder="Enter Author Email"
-          type="email"
-          name="email"
-          value={authorData.email}
-          onChange={handleChange}
-        />
+        <Box sx={{ width: "90%", padding: 2, border: "1px solid #ddd", borderRadius: "8px" }}>
+          <form onSubmit={handleSubmit} style={{ padding: '10px', maxWidth: '90%', margin: 'auto' }}>
+            <Grid container style={{ display: "flex", "justifyContent": "center", gap: "20px" }}>
+              <div style={{ width: "50%", display: "flex", flexDirection: "column" }}>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label="Author Name"
+                  variant="outlined"
+                  placeholder="Enter Author Name"
+                  name="name"
+                  value={authorData.name}
+                  onChange={handleChange}
+                />
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label="Author Email"
+                  variant="outlined"
+                  placeholder="Enter Author Email"
+                  type="email"
+                  name="email"
+                  value={authorData.email}
+                  onChange={handleChange}
+                />
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label="Author Description"
+                  variant="outlined"
+                  placeholder="Enter Author Description"
+                  multiline
+                  rows={4}
+                  name="description"
+                  value={authorData.description}
+                  onChange={handleChange}
+                />
+              </div>
+              <div style={{ width: "45%", display: "flex", flexDirection: "column" }}>
+                <TextField
+                  fullWidth
+                  margin="normal"
+                  label="Image URL or File"
+                  variant="outlined"
+                  placeholder="Enter Image URL or File"
+                  value={authorData.image ? authorData.image.name : ''}
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                />
+                {authorData.image && (
+                  <Box sx={{ mt: 2, textAlign: 'center' }}>
+                    <img
+                      src={URL.createObjectURL(authorData.image)}
+                      alt="Author Preview"
+                      style={{
+                        width: '200px',
+                        height: '200px',
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        border: '1px solid #ccc',
+                        padding: '4px'
+                      }}
+                    />
+                  </Box>
+                )}
+                <Button fullWidth variant="contained" component="label" color="error" sx={{ marginBottom: 2 }}>
+                  + Select File
+                  <input type="file" hidden accept="image/*" onChange={handleFileChange} />
+                </Button>
 
-        {/* Author Description */}
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Author Description"
-          variant="outlined"
-          placeholder="Enter Author Description"
-          multiline
-          rows={4}
-          name="description"
-          value={authorData.description}
-          onChange={handleChange}
-        />
 
-        {/* Image URL or File */}
-        <TextField
-          fullWidth
-          margin="normal"
-          label="Image URL or File"
-          variant="outlined"
-          placeholder="Enter Image URL or File"
-          value={authorData.image ? authorData.image.name : ''}
-          InputProps={{
-            readOnly: true, // Make it read-only if using file input
-          }}
-        />
+              </div>
 
-        {/* File Upload Button */}
-        <Button fullWidth variant="contained" component="label" color="error" sx={{ marginBottom: 2 }}>
-          + Select File
-          <input type="file" hidden onChange={handleFileChange} />
-        </Button>
-
-        {/* Submit Button */}
-        <Button
-          fullWidth
-          variant="contained"
-          color="primary"
-          type="submit"
-          sx={{
-            padding: '10px',
-            fontSize: '16px',
-            background: '#7e3ff2',
-          }}
-        >
-          Submit
-        </Button>
-      </form>
+            </Grid>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: "flex-end" }}>
+              <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                onClick={() => handleReset()}
+                sx={{
+                  width: '100px',
+                  padding: '10px',
+                  fontSize: '16px',
+                  background: 'red',
+                }}
+              >
+                Reset
+              </Button>
+              <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                type="submit"
+                sx={{
+                  width: '100px',
+                  padding: '10px',
+                  fontSize: '16px',
+                  background: '#7e3ff2',
+                }}
+              >
+                Submit
+              </Button>
+            </div>
+          </form >
+        </Box>
+      </div>
     </>
   );
 };

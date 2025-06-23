@@ -24,6 +24,9 @@ import CreateDiscountBook from './components/Creates_Item/CreateDisciuntBooks'
 import DiscountList from './components/Creates_Item/Discount_List';
 import StockManager from './components/ManageStock';
 import Usertable from './components/UserTable'
+import BannerForm from './components/Creates_Item/CreateBanner';
+import BannerList from './components/Creates_Item/ListBanner';
+import BookDiscountlist from './components/Discounts/ManageBookDiscount'
 import { BrowserRouter as Router, Routes, Route, Outlet, useNavigate } from 'react-router-dom';
 function App() {
   return (
@@ -49,10 +52,7 @@ function AppWithRouter() {
 
   return (
     <Routes>
-      {/* Login Route */}
       <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
-
-      {/* Protected Routes */}
       {isLoggedIn && (
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
@@ -75,10 +75,11 @@ function AppWithRouter() {
           <Route path="/discount_list" element={<DiscountList />} />
           <Route path="/stocks" element={<StockManager/>}/>
           <Route path="/usertable" element={<Usertable/>}/>
+          <Route path="/BannerForm" element={<BannerForm/>}/>
+          <Route path="/BannerList" element={<BannerList/>}/>
+          <Route path='/BookDiscountlist' element={<BookDiscountlist/>}/>
         </Route>
       )}
-
-      {/* If not logged in, redirect to login */}
       {!isLoggedIn && <Route path="/" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />}
     </Routes>
   );

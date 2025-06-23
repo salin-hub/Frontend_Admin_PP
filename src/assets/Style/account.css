@@ -15,7 +15,7 @@
     display: flex;
     width: 70%;
     height: 500px;
-    background-color: rgb(59, 144, 230);
+    background-color: rgb(233, 25, 25);
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 0px 20px rgb(79, 79, 79);
@@ -85,7 +85,7 @@
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    background-color: #4d88ff;
+    background-color: #ff4d4d;
   }
   
 
@@ -237,6 +237,7 @@
   .sign-out:hover {
     background-color: #ff4d4d;
   }
+
 
   /* //// */
   @keyframes slideOut {

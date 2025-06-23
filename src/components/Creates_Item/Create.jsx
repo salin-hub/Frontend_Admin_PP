@@ -4,16 +4,18 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import  FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import DiscountIcon from '@mui/icons-material/Discount';
 const Create = () => {
   const items = [
     { path: '/createBook', label: 'Books', icon: <AutoStoriesIcon /> },
     { path: '/CreateAuthor', label: 'Authors', icon: <PeopleAltIcon /> },
     { path: '/CreateCategory', label: 'Categories', icon: <FeaturedPlayListIcon /> },
     { path: '/subcategory', label: 'Sub Categories', icon: <AccountTreeIcon /> },
-    { path: '/Banner', label: 'Banner', icon: <ViewCarouselIcon /> },
-    { path: '/create_coupon', label: 'Coupon', icon: <ViewCarouselIcon /> },
-    { path: '/create_discount', label: 'Discount', icon: <ViewCarouselIcon /> },
-    { path: '/create_discount_Books', label: 'Discount Books', icon: <ViewCarouselIcon /> },
+    { path: '/BannerForm', label: 'Banner', icon: <ViewCarouselIcon /> },
+    // { path: '/create_coupon', label: 'Coupon', icon: <ViewCarouselIcon /> },
+    { path: '/create_discount', label: 'Discount', icon: <LocalOfferIcon /> },
+    { path: '/create_discount_Books', label: 'Discount Books', icon: <DiscountIcon /> },
   ];
 
   return (

@@ -14,7 +14,9 @@ import {
   DialogContent,
   DialogTitle,
   Button,
-  InputAdornment
+  InputAdornment,
+  Typography
+
 } from '@mui/material';
 import axios_api from '../../API/axios';
 import { Search } from '@mui/icons-material';
@@ -32,7 +34,7 @@ const OrderList = () => {
   const fetchOrders = async () => {
     try {
       const response = await axios_api.get('/orders');
-      setOrders(response.data.orders);
+      setOrders(response.data.orders.reverse());
     } catch (error) {
       console.error('Error fetching orders:', error);
     }
@@ -51,7 +53,7 @@ const OrderList = () => {
   const approveOrder = async (orderItemId) => {
     try {
       await axios_api.put(`/order-items/${orderItemId}/status`, {
-        status: 'approved',
+        status: 'completed',
       });
       fetchOrders(); // Refresh orders after update
     } catch (error) {
@@ -90,6 +92,9 @@ const OrderList = () => {
 
   return (
     <div style={{ padding: '10px' }}>
+      <Typography variant="h6" gutterBottom sx={{ fontFamily: 'system-ui', color: 'black' }}>
+        Order List
+      </Typography>
       <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <TextField
           label="Search Book"
@@ -123,7 +128,7 @@ const OrderList = () => {
           overflowY: 'auto',
           scrollbarWidth: 'none',
           '&::-webkit-scrollbar': {
-            display: 'none', 
+            display: 'none',
           },
         }}
       >
@@ -132,13 +137,13 @@ const OrderList = () => {
             <TableRow>
               <TableCell align='center'>No</TableCell>
               <TableCell align='center'>UserName</TableCell>
-              <TableCell align='center'>Book Image</TableCell>
-              <TableCell align='center'>Order Title</TableCell>
+              <TableCell align='center'>cover</TableCell>
+              <TableCell align='center'>Title</TableCell>
               <TableCell align='center'>Author Name</TableCell>
-              <TableCell align='center'>Order Type</TableCell>
-              <TableCell align='center'>Order Date</TableCell>
+              <TableCell align='center'>Date</TableCell>
               <TableCell align='center'>Qty</TableCell>
               <TableCell align='center'>Price</TableCell>
+              <TableCell align='center'>Message</TableCell>
               <TableCell align='center'>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -158,10 +163,13 @@ const OrderList = () => {
                   </TableCell>
                   <TableCell align='center'>{item.book?.title || 'No title available'}</TableCell>
                   <TableCell align='center'>{item.book?.author?.name || 'No Author'}</TableCell>
-                  <TableCell align='center'>{item.book?.type || 'No Type'}</TableCell>
                   <TableCell align='center'>{new Date(order.created_at).toLocaleDateString('en-GB') || 'No Date'}</TableCell>
                   <TableCell align='center'>{item.quantity || 'N/A'}</TableCell>
-                  <TableCell align='center'>${item.price || 'N/A'}</TableCell>
+                  <TableCell align='center'>
+                    {item.calculated_price ? `$${item.calculated_price.toFixed(2)}` : 'N/A'}
+                  </TableCell>
+
+                  <TableCell align='center'>{item.message}</TableCell>
                   <TableCell align='center'>
                     <Stack spacing={2} direction="row">
                       <Button
@@ -169,7 +177,7 @@ const OrderList = () => {
                         onClick={() => approveOrder(item.id)}
                         disabled={item.status !== 'pending'}
                       >
-                        Approve
+                        {item.status === 'completed' ? 'completed' : 'complete'}
                       </Button>
                       <Button
                         variant="contained"
@@ -180,6 +188,7 @@ const OrderList = () => {
                         Reject
                       </Button>
                     </Stack>
+
                   </TableCell>
                 </TableRow>
               ))

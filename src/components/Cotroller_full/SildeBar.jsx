@@ -16,6 +16,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import SpeedIcon from '@mui/icons-material/Speed';
 import axios from '../../API/loginAPi';
 import DiscountIcon from '@mui/icons-material/Discount';
+import ViewCarouselIcon from '@mui/icons-material/ViewCarousel';
 import StoreMallDirectoryIcon from '@mui/icons-material/StoreMallDirectory';
 const SideBar = () => {
   const navigate = useNavigate();
@@ -78,11 +79,12 @@ const SideBar = () => {
       ]
     },
     { path: '/authors', label: 'Author', icon: <PeopleAltIcon /> },
+    {path:'/BannerList', label:'List Banner' ,icon:< ViewCarouselIcon/>},
     { path: '/create', label: 'Create', icon: <AddCircleOutlineIcon /> },
     {
       path: '/manage/discount', label: 'Disounts ', icon: <DiscountIcon />,
       children: [
-        { path: '/couponlist', label: 'Coupon List' },
+        { path: '/BookDiscountlist', label: 'Mannage book discount' },
         { path: '/discount_list', label: 'Discounts List' },
       ]
     },

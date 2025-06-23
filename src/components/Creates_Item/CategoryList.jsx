@@ -23,8 +23,11 @@ import {
   Button,
   LinearProgress,
   Stack,
-  Box
+  InputAdornment,
+  
+  Box,
 } from '@mui/material';
+import { Search } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 const Item = styled(Paper)(({ theme }) => ({
@@ -91,7 +94,7 @@ const CategoryList = () => {
       setError('Failed to update category: ' + (error.response?.data?.message || error.message));
     }
   };
-  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+  // const handleSearchChange = (e) => setSearchTerm(e.target.value);
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -114,16 +117,41 @@ const CategoryList = () => {
       </div>
 
       <div style={{ padding: '20px' }}>
-        <TextField
-          variant="outlined"
-          placeholder="Search category name"
-          fullWidth
-          value={searchTerm}
-          onChange={handleSearchChange}
-          style={{ marginBottom: '20px' }}
-        />
+        <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <TextField
+            label="Search Book"
+            variant="outlined"
+            margin="normal"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Search />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              width: '50%',
+              borderRadius: '10px',
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '10px',
+              },
+              '& .MuiOutlinedInput-root.Mui-focused': {
+                borderColor: 'primary.main',
+              }
+            }}
+          />
+        </div>
 
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} sx={{
+          maxHeight: '68vh',
+          overflowY: 'auto',
+          scrollbarWidth: 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          }
+        }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -174,7 +202,7 @@ const CategoryList = () => {
                                       padding: '0px',
                                       '&:hover': {
                                         padding: '1px',
-                                        transition: 'padding 0.3s ease', 
+                                        transition: 'padding 0.3s ease',
                                       },
                                       transition: 'padding 0.3s ease'
                                     }}
